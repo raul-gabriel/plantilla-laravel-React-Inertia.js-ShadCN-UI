@@ -19,15 +19,20 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 // Rutas protegidas
 Route::middleware(\App\Http\Middleware\CheckLogin::class)->group(function () {
     Route::get('/dashboard', [LoginController::class, 'indexDashboard'])->name('dashboard');
-    
+
     // Perfil
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil.index');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
     Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');
-    
+
     // Usuarios (CRUD completo)
     Route::resource('usuarios', UsuarioController::class);
 
 
     Route::resource('libros', LibroController::class)->except(['create', 'edit', 'show']);
+
+
+   /* Route::middleware(RolesGuard::class . ':administrador,supervisor')->group(function () {
+        Route::get('/reportes', [ReporteController::class, 'index']);
+    });*/
 });

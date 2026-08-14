@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\ValidaRol;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,19 @@ use Illuminate\Support\Facades\Session;
 
 class UsuarioController extends Controller
 {
+
+
+    use ValidaRol;
+
+    public function __construct()
+    {
+        $this->validarRol('administrador');
+    }
+
+
+
+
+
     public function index(Request $request)
     {
         $query = Usuario::query();
@@ -33,7 +47,7 @@ class UsuarioController extends Controller
     }
 
 
- 
+
     public function store(Request $request)
     {
         $request->validate([

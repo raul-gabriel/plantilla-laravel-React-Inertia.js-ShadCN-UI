@@ -213,6 +213,7 @@ Se realizaron las siguientes modificaciones en la estructura base de **Laravel +
 - `app/Http/Controllers/Admin/` — controladores de administración
 - `app/Http/Middleware/CheckLogin.php` — middleware de autenticación
 - `app/Http/Middleware/HandleInertiaRequests.php` — configuración de Inertia
+- `app/Http/Middleware/ValidaRol.php` — Guard para roles especificos
 - `resources/js/Components/` — componentes reutilizables
 - `resources/js/Layouts/` — layouts de la aplicación
 - `resources/js/pages/` — páginas del proyecto
@@ -257,6 +258,72 @@ Route::middleware(\App\Http\Middleware\CheckLogin::class)->group(function () {
     Route::resource('usuarios', UsuarioController::class);
 });
 ```
+
+
+## 🔒 Protección por rol (`validarRol`)
+
+**Archivo:** `app/Http/Middleware/ValidaRol.php`
+
+Trait reutilizable para restringir el acceso a un controlador completo o a funciones específicas, según el rol del usuario logueado (`Session::get('usuario_logueado')`).
+
+### Uso básico
+
+1. Importa el trait y agrégalo con `use ValidaRol;` dentro de la clase.
+2. Llama a `$this->validarRol('rol1', 'rol2', ...)` con los roles permitidos.
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Middleware\ValidaRol;
+
+class UsuarioController extends Controller
+{
+    use ValidaRol;
+
+    public function __construct()
+    {
+        // Aplica a TODAS las funciones del controlador
+        $this->validarRol('administrador');
+    }
+}
+```
+
+### Proteger solo una función específica
+
+```php
+class ReporteController extends Controller
+{
+    use ValidaRol;
+
+    public function index()
+    {
+        // Sin restricción de rol
+    }
+
+    public function exportarExcel()
+    {
+        // Solo esta función está protegida
+        $this->validarRol('administrador', 'supervisor');
+        // ...
+    }
+}
+```
+
+### Permitir varios roles
+
+Solo agrega más argumentos separados por coma:
+
+```php
+$this->validarRol('administrador', 'supervisor', 'vendedor');
+```
+
+> ⚠️ El método es `protected`, por lo que **nunca** puede ser llamado desde una ruta/URL — solo desde dentro del propio controlador (constructor o cualquier método).
+
+> Los nombres de rol deben coincidir con el valor guardado en la columna `rol` de la tabla `usuarios` (no distingue mayúsculas/minúsculas).
+
 
 ---
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\ValidaRol;
 use App\Models\Libro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,16 @@ use Inertia\Inertia;
 
 class LibroController extends Controller
 {
+
+
+
+    use ValidaRol;
+
+    public function __construct()
+    {
+        $this->validarRol('administrador', 'editor');
+    }
+
 
 
     public function index(Request $request)
@@ -111,7 +122,7 @@ class LibroController extends Controller
             ->with('success', 'Libro actualizado correctamente.');
     }
 
-    
+
     public function destroy(Libro $libro)
     {
         try {
